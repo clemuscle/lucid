@@ -1,0 +1,24 @@
+{
+  "$comment": "Tiers → modèles par harness. Modifie ici puis `just ai-sync`. strong=planif/review, mid=code, fast=exploration/PO. Vérifie les noms de modèles disponibles avec ton abonnement.",
+  "harnesses": ["claude", "opencode"],
+  "forges": ["github", "gitlab"],
+  "models": {
+    "claude":   { "strong": "opus", "mid": "sonnet", "fast": "haiku" },
+    "opencode": { "strong": "anthropic/claude-opus-5-5", "mid": "anthropic/claude-sonnet-5-5", "fast": "anthropic/claude-haiku-5-5" }
+  },
+  "access": {
+    "read":  { "claude": "Read, Grep, Glob, Bash", "opencode": { "write": false, "edit": false, "bash": true } },
+    "write": { "claude": "Read, Grep, Glob, Bash, Edit, Write", "opencode": { "write": true, "edit": true, "bash": true } }
+  },
+  "loop": {
+    "$comment": "Commande headless lancée à chaque itération ({prompt} est remplacé). Un nouveau processus = un contexte neuf.",
+    "harness": "claude",
+    "commands": {
+      "claude":   ["claude", "-p", "{prompt}", "--dangerously-skip-permissions"],
+      "opencode": ["opencode", "run", "{prompt}"]
+    },
+    "max_iterations": 10,
+    "timeout_minutes": 30,
+    "max_no_progress": 3
+  }
+}

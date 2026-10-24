@@ -1,0 +1,23 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "task-envelope.schema.json",
+  "title": "Enveloppe de tâche (orchestrateur -> sous-agent). Autoportante : le sous-agent n'a pas l'historique de l'orchestrateur.",
+  "type": "object",
+  "required": ["us", "agent", "goal", "context", "acceptance_criteria", "allowed_paths", "expected_output"],
+  "properties": {
+    "us": { "type": "string" },
+    "agent": { "type": "string", "description": "rôle#instance, ex. dev#2" },
+    "goal": { "type": "string", "description": "une phrase, résultat observable" },
+    "context": {
+      "type": "array", "items": { "type": "string" },
+      "description": "faits nécessaires + chemins à lire (spec, DEX, ADR, leçons) ; rien n'est implicite"
+    },
+    "acceptance_criteria": { "type": "array", "items": { "type": "string" } },
+    "constraints": { "type": "array", "items": { "type": "string" } },
+    "allowed_paths": { "type": "array", "items": { "type": "string" }, "description": "fichiers possédés : aucun recouvrement entre agents parallèles" },
+    "out_of_scope": { "type": "array", "items": { "type": "string" } },
+    "plan": { "type": "string", "description": "chemin du plan à exécuter (specs/NNN-slug/plan.md)" },
+    "expected_output": { "type": "string", "description": "format exact du retour, ex. report.schema.json" },
+    "component": { "type": "string" }
+  }
+}

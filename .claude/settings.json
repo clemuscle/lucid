@@ -1,0 +1,15 @@
+{
+  "env": { "CLAUDE_CODE_MAX_CONCURRENT_SUBAGENTS": "3" },
+  "permissions": {
+    "allow": [
+      "Bash(node scripts/board.mjs:*)", "Bash(node scripts/vision.mjs check)", "Bash(node scripts/vision.mjs status)", "Bash(just:*)", "Bash(bash scripts/hooks/*)",
+      "Bash(git status:*)", "Bash(git diff:*)", "Bash(git log:*)", "Bash(git add:*)", "Bash(git commit:*)",
+      "Bash(git switch:*)", "Bash(git checkout -b:*)"
+    ],
+    "deny": ["Read(.env)", "Read(.env.*)", "Read(**/*.tfstate)", "Edit(board/*.json)", "Write(board/*.json)", "Edit(docs/.vision.lock)", "Write(docs/.vision.lock)", "Edit(.ai/graph.json)", "Write(.ai/graph.json)"]
+  },
+  "hooks": {
+    "PreToolUse": [{ "matcher": "Bash", "hooks": [{ "type": "command", "command": "bash scripts/hooks/guard.sh" }] }],
+    "SubagentStop": [{ "matcher": "dev", "hooks": [{ "type": "command", "command": "bash scripts/hooks/dod-gate.sh" }] }]
+  }
+}

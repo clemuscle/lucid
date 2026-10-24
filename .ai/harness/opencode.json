@@ -1,0 +1,18 @@
+{
+  "$schema": "https://opencode.ai/config.json",
+  "instructions": ["AGENTS.md"],
+  "permission": {
+    "edit": "allow",
+    "bash": {
+      "*": "ask",
+      "node scripts/board.mjs*": "allow",
+      "node scripts/vision.mjs check*": "allow", "node scripts/vision.mjs status*": "allow",
+      "*vision-approve*": "deny", "*vision.mjs approve*": "deny",
+      "just *": "allow",
+      "git status*": "allow", "git diff*": "allow", "git log*": "allow", "git add*": "allow", "git commit*": "allow",
+      "*--no-verify*": "deny", "git push --force*": "deny",
+      "git push * main*": "deny", "git push * dev*": "deny", "git push *:main*": "deny", "git push *:dev*": "deny",
+      "terraform apply*": "deny", "tofu apply*": "deny", "kubectl delete*": "deny"
+    }
+  }
+}

@@ -1,0 +1,10 @@
+.env
+.env.*
+*.tfstate*
+.terraform/
+node_modules/
+.worktrees/
+board/.lock/
+board/*.tmp
+board/board.html
+.loop-stop

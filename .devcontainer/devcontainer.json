@@ -1,0 +1,12 @@
+{
+  "name": "socle-hybride",
+  "image": "mcr.microsoft.com/devcontainers/base:ubuntu-24.04",
+  "features": {
+    "ghcr.io/devcontainers/features/node:1": { "version": "22" },
+    "ghcr.io/devcontainers/features/github-cli:1": {},
+    "ghcr.io/guiyomh/features/just:0": {}
+  },
+  "postCreateCommand": "bash .devcontainer/setup.sh",
+  "remoteUser": "vscode",
+  "containerEnv": { "AI_SANDBOX": "1" }
+}

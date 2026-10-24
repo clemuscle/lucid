@@ -1,0 +1,17 @@
+{
+  "$comment": "Graphe d'exécution du projet : nœuds = états du board, arêtes = transitions autorisées. Source unique lue par board.mjs et loop.mjs.",
+  "entry_gate": "vision",
+  "wip_limit": 3,
+  "max_attempts": 2,
+  "states": {
+    "backlog":     { "owner": "po",        "next": ["ready", "blocked"],
+                     "gate": "Definition of Ready : composant posé par l'architect + validation humaine du backlog" },
+    "ready":       { "owner": "architect", "next": ["in_progress", "backlog", "blocked"] },
+    "in_progress": { "owner": "dev",       "next": ["review", "blocked"], "loop_command": "build",
+                     "gate": "Definition of Done : just check" },
+    "review":      { "owner": "qa + security-reviewer", "next": ["done", "in_progress", "blocked"], "loop_command": "review" },
+    "done":        { "owner": "human",     "next": [], "gate": "merge de la PR par l'humain" },
+    "blocked":     { "owner": "human",     "next": ["backlog", "ready", "in_progress"] }
+  },
+  "human_gates": ["vision", "backlog", "architecture", "blocked", "merge"]
+}
