@@ -1,27 +1,3 @@
-# Garde-fous déterministes : ils s'appliquent à l'humain ET à l'agent.
-pre-commit:
-  parallel: true
-  commands:
-    secrets:
-      run: gitleaks protect --staged --no-banner --redact
-    ai-sync:
-      glob: ".ai/**"
-      run: node scripts/ai-sync.mjs --check
-    board:
-      glob: "board/*.json"
-      run: node scripts/board.mjs validate
-    vision:
-      glob: "docs/vision.md"
-      run: node scripts/vision.mjs check
-    fmt:
-      run: just fmt
-commit-msg:
-  commands:
-    conventional:
-      run: bash scripts/hooks/git-conventions.sh msg {1}
-pre-push:
-  commands:
-    branch:
-      run: bash scripts/hooks/git-conventions.sh branch
-    check:
-      run: just check
+# Hooks du PROJET. Les garde-fous du socle sont dans lefthook-socle.yml (ne pas éditer).
+extends:
+  - lefthook-socle.yml

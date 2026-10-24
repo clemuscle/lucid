@@ -1,3 +1,4 @@
+# socle:start (généré, ne pas éditer)
 .env
 .env.*
 *.tfstate*
@@ -8,3 +9,4 @@ board/.lock/
 board/*.tmp
 board/board.html
 .loop-stop
+# socle:end

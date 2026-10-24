@@ -27,8 +27,17 @@ const fm = (o) => "---\n" + Object.entries(o).map(([k, v]) =>
     ? `${k}:\n` + Object.entries(v).map(([a, b]) => `  ${a}: ${b}`).join("\n")
     : `${k}: ${v}`).join("\n") + "\n---\n";
 
-function write(file, content) {
+// Fichiers générés par ce script : seuls eux peuvent être écrasés. Un fichier du projet est conservé.
+const MANIFEST = path.join(SRC, ".generated.json");
+const generated = new Set(fs.existsSync(MANIFEST) ? JSON.parse(fs.readFileSync(MANIFEST, "utf8")) : []);
+const seen = new Set();
+function write(file, content, { owned = false } = {}) {
+  const rel = path.relative(ROOT, file);
   const cur = fs.existsSync(file) ? fs.readFileSync(file, "utf8") : null;
+  if (!owned && cur !== null && cur !== content && !generated.has(rel) && !cur.includes(HEADER.trim())) {
+    console.error(`⚠ conservé, fichier du projet : ${rel} (fusionne à la main si besoin)`); return;
+  }
+  if (!owned) seen.add(rel);
   if (cur === content) return;
   if (CHECK) { console.error(`✗ désynchronisé : ${path.relative(ROOT, file)}`); drift++; return; }
   fs.mkdirSync(path.dirname(file), { recursive: true });
@@ -79,11 +88,23 @@ for (const s of list(path.join(SRC, "skills"))) {
   }
 }
 
-// Config propre à chaque harness (permissions, hooks)
-if (cfg.harnesses.includes("claude"))
-  write(path.join(ROOT, ".claude/settings.json"), fs.readFileSync(path.join(SRC, "harness/claude.settings.json"), "utf8"));
-if (cfg.harnesses.includes("opencode"))
-  write(path.join(ROOT, "opencode.json"), fs.readFileSync(path.join(SRC, "harness/opencode.json"), "utf8"));
+// Config propre à chaque harness (permissions, hooks), FUSIONNÉE dans celle du projet :
+// les garde-fous du socle sont toujours présents, les réglages du projet sont conservés.
+// Tableaux : union sans doublon. Objets : fusion récursive. Valeur simple : celle du socle.
+const merge = (a, b) => Array.isArray(a) && Array.isArray(b)
+  ? [...a, ...b.filter((x) => !a.some((y) => JSON.stringify(y) === JSON.stringify(x)))]
+  : a && b && typeof a === "object" && typeof b === "object" && !Array.isArray(a) && !Array.isArray(b)
+    ? Object.fromEntries([...new Set([...Object.keys(a), ...Object.keys(b)])].map((k) => [k, k in a && k in b ? merge(a[k], b[k]) : k in b ? b[k] : a[k]]))
+    : b;
+function harnessConfig(file, src) {
+  const socle = fs.readFileSync(path.join(SRC, "harness", src), "utf8");
+  if (!fs.existsSync(file)) return write(file, socle, { owned: true });
+  const cur = fs.readFileSync(file, "utf8");
+  const next = JSON.stringify(merge(JSON.parse(cur), JSON.parse(socle)), null, 2) + "\n";
+  write(file, JSON.stringify(JSON.parse(cur)) === JSON.stringify(JSON.parse(next)) ? cur : next, { owned: true });
+}
+if (cfg.harnesses.includes("claude")) harnessConfig(path.join(ROOT, ".claude/settings.json"), "claude.settings.json");
+if (cfg.harnesses.includes("opencode")) harnessConfig(path.join(ROOT, "opencode.json"), "opencode.json");
 
 // Templates de PR (GitHub) / MR (GitLab) : une seule source
 const PR = path.join(SRC, "templates/pull_request.md");
@@ -93,8 +114,32 @@ if (fs.existsSync(PR)) {
   if ((cfg.forges || []).includes("gitlab")) write(path.join(ROOT, ".gitlab/merge_request_templates/Default.md"), tpl);
 }
 
-// Pont CLAUDE.md -> AGENTS.md
-if (cfg.harnesses.includes("claude")) write(path.join(ROOT, "CLAUDE.md"), "@AGENTS.md\n");
+// Blocs balisés dans des fichiers du projet : seul le contenu entre les marqueurs appartient au socle.
+// En tête de fichier : les règles et exceptions du projet, placées après, gardent le dernier mot.
+function block(file, body, open, close, seed = "") {
+  const cur = fs.existsSync(file) ? fs.readFileSync(file, "utf8") : null;
+  const blk = `${open}\n${body.trimEnd()}\n${close}`;
+  const i = cur?.indexOf(open) ?? -1, j = cur?.indexOf(close) ?? -1;
+  const next = cur === null ? `${blk}\n${seed}`
+    : i >= 0 && j > i ? cur.slice(0, i) + blk + cur.slice(j + close.length)
+    : `${blk}\n\n${cur}`;
+  write(file, next, { owned: true });
+}
+block(path.join(ROOT, "AGENTS.md"), fs.readFileSync(path.join(SRC, "AGENTS.socle.md"), "utf8"),
+  "<!-- socle:start — généré depuis .ai/AGENTS.socle.md, ne pas éditer entre ces marqueurs -->", "<!-- socle:end -->",
+  "\n## Spécifique au projet\n<!-- Langage, structure des dossiers, conventions propres au projet. -->\n");
+block(path.join(ROOT, ".gitignore"), fs.readFileSync(path.join(SRC, "gitignore.socle"), "utf8"),
+  "# socle:start (généré, ne pas éditer)", "# socle:end");
 
+// Pont CLAUDE.md -> AGENTS.md (un CLAUDE.md du projet est conservé, la ligne est ajoutée en tête)
+if (cfg.harnesses.includes("claude")) {
+  const f = path.join(ROOT, "CLAUDE.md"), cur = fs.existsSync(f) ? fs.readFileSync(f, "utf8") : "";
+  write(f, /^@AGENTS\.md$/m.test(cur) ? cur : `@AGENTS.md\n${cur}`, { owned: true });
+}
+
+if (!CHECK) {
+  const list = JSON.stringify([...seen].sort(), null, 2) + "\n";
+  if (!fs.existsSync(MANIFEST) || fs.readFileSync(MANIFEST, "utf8") !== list) fs.writeFileSync(MANIFEST, list);
+}
 if (CHECK && drift) { console.error(`${drift} fichier(s) à régénérer : lance \`just ai-sync\``); process.exit(1); }
 if (CHECK) console.log("✓ config agents synchronisée");

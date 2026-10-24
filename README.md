@@ -1,6 +1,6 @@
 # socle v2 — démarrer un projet avec des agents IA, sans flou
 
-Un socle à copier au début de chaque projet. Il impose un ordre simple :
+Un socle à installer dans n'importe quel projet, neuf ou existant. Il impose un ordre simple :
 **une vision claire d'abord, puis des US, puis du code**, avec des agents qui tournent
 sur Claude Code ou OpenCode et des garde-fous qu'aucun agent ne peut contourner.
 
@@ -9,11 +9,30 @@ sur Claude Code ou OpenCode et des garde-fous qu'aucun agent ne peut contourner.
  (toi + agent)   (toi seul)      (po + architect)  (toi)       (piloté, ou `just loop` en sandbox)   (toi)
 ```
 
-## Démarrage d'un projet
+## Installer dans un projet (neuf ou existant)
 ```bash
-npx degit <toi>/socle-v2 mon-projet && cd mon-projet && git init
-code .                      # → « Reopen in Container » (sandbox)
-just ai-sync                # génère .claude/, .opencode/, docs/graph.md
+cd mon-projet                              # un dépôt git, arbre propre (projet neuf : git init + 1 commit)
+npx github:clemuscle/socle-v2 init         # --dry-run pour voir sans écrire
+npx github:clemuscle/socle-v2 update       # plus tard : nouvelle version du socle
+```
+L'installeur crée `dev` si besoin, travaille sur une branche `chore/integrate-socle-v2` (commit fait, à merger vers `dev`)
+et **n'écrase aucun fichier du projet** :
+
+| Si ton projet a déjà… | Le socle |
+|---|---|
+| `justfile` | ajoute `import 'socle.just'` ; ses recettes sont dans `socle.just` |
+| `lefthook.yml` | ajoute `extends: [lefthook-socle.yml]` |
+| `AGENTS.md`, `.gitignore` | ajoute un bloc balisé `socle:start/end` en tête, ton contenu reste |
+| `CLAUDE.md` | ajoute `@AGENTS.md` en tête |
+| `.claude/settings.json`, `opencode.json` | fusionne ses garde-fous (permissions, hooks), tes réglages restent |
+| CI, `docs/`, `scripts/` | ne touche à rien : CI dans `socle.yml`, docs créées seulement si absentes |
+
+`update` remplace uniquement les fichiers du socle (`scripts/` du socle, `.ai/agents|commands|skills|templates|harness`,
+`board/schema/`, templates de docs) et le contenu des blocs balisés. Pour adapter un skill du socle, copie-le sous un autre nom.
+
+Ensuite :
+```bash
+code .                      # → « Reopen in Container » (sandbox, optionnel)
 claude                      # ou : opencode
 ```
 1. **`/grill <ton idée>`** : l'agent t'interroge domaine par domaine (88 questions de base, plus les relances).
@@ -21,7 +40,7 @@ claude                      # ou : opencode
    une hypothèse à tester ou une question non bloquante avec échéance. Le résultat : `docs/vision.md`.
 2. **`just vision-approve`** dans ton terminal. Toi seul peux le faire : un agent est bloqué par le hook,
    et le script exige un terminal interactif. Si la vision change ensuite, elle doit être réapprouvée.
-3. Configure `fmt / lint / typecheck / test` dans le `justfile` (fail-closed tant que ce n'est pas fait).
+3. Configure `fmt / lint / typecheck / test` dans le `justfile` (fail-closed tant que ce n'est pas fait : la CI `socle.yml` reste rouge d'ici là).
 4. **`/spec`** : po et architect transforment le périmètre MVP en specs et US, sans redemander ce que la vision tranche déjà.
 
 ## Ensuite, au quotidien
@@ -61,9 +80,10 @@ claude                      # ou : opencode
 - **Leçons** : chaque erreur d'agent → `docs/lessons/<catégorie>/`, lue avant les tâches suivantes.
 
 ## Personnaliser
-Édite uniquement `AGENTS.md` et `.ai/` (agents, commandes, skills, `config.json`, `graph.json`), puis `just ai-sync`.
+Dans un projet : `AGENTS.md` (sous le bloc du socle), `justfile`, `.ai/config.json`, `.ai/graph.json`, et de NOUVEAUX
+agents/commandes/skills dans `.ai/` (un nom différent de ceux du socle, sinon `update` les remplace), puis `just ai-sync`.
 `.claude/`, `.opencode/`, `opencode.json`, `docs/graph.md` et les templates de PR/MR (`.github/`, `.gitlab/`) sont générés.
 
 ## Crédits
 Board agile, contrats JSON entre agents, rôles et portes humaines inspirés de
-[clemuscle/agile-agents-socle](https://github.com/clemuscle/agile-agents-socle). Voir NOTICE.
+[clemuscle/agile-agents-socle](https://github.com/clemuscle/agile-agents-socle). Voir `.ai/NOTICE`.

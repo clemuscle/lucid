@@ -1,0 +1,9 @@
+{
+  "name": "socle-v2",
+  "version": "2.0.0",
+  "description": "Socle de projet piloté par agents IA : npx github:clemuscle/socle-v2 init | update",
+  "private": true,
+  "type": "module",
+  "bin": { "socle": "scripts/install.mjs" },
+  "engines": { "node": ">=20" }
+}
