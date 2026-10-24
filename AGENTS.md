@@ -1,5 +1,5 @@
-<!-- socle:start — généré depuis .ai/AGENTS.socle.md, ne pas éditer entre ces marqueurs -->
-# AGENTS.md — règles du socle (lues par tous les agents)
+<!-- lucid:start — généré depuis .ai/AGENTS.lucid.md, ne pas éditer entre ces marqueurs -->
+# AGENTS.md — règles de lucid (lues par tous les agents)
 
 ## Projet
 La vision du projet est `docs/vision.md`. Elle fait foi : intention, périmètre, non-objectifs, contraintes,
@@ -74,7 +74,7 @@ Une demande ou une discussion contredit la vision → tu ne choisis pas. Tu cite
 ## Conventions
 - Doc : phrases courtes, tableaux, commandes exactes. Un fait à un seul endroit, ailleurs un lien.
 - Les règles propres au projet sont sous ce bloc, dans `AGENTS.md`. En cas de conflit, la règle du projet est signalée à l'humain.
-<!-- socle:end -->
+<!-- lucid:end -->
 
 ## Spécifique au projet
 <!-- Langage, structure des dossiers, conventions propres au projet. -->

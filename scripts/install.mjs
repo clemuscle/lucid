@@ -1,10 +1,10 @@
 #!/usr/bin/env node
-// Installe ou met à jour le socle dans le projet courant. Zéro dépendance.
-//   npx github:clemuscle/socle-v2 init       (projet neuf ou existant)
-//   npx github:clemuscle/socle-v2 update     (nouvelle version du socle)
+// Installe ou met à jour lucid dans le projet courant. Zéro dépendance.
+//   npx github:clemuscle/lucid init       (projet neuf ou existant)
+//   npx github:clemuscle/lucid update     (nouvelle version de lucid)
 //   ... --dry-run                            (affiche sans rien écrire)
-// N'écrase jamais un fichier du projet : les fichiers du socle sont à côté, ancrés par une ligne
-// (justfile → socle.just, lefthook.yml → lefthook-socle.yml, AGENTS.md/.gitignore → bloc balisé).
+// N'écrase jamais un fichier du projet : les fichiers de lucid sont à côté, ancrés par une ligne
+// (justfile → lucid.just, lefthook.yml → lefthook-lucid.yml, AGENTS.md/.gitignore → bloc balisé).
 import fs from "node:fs";
 import path from "node:path";
 import { execFileSync } from "node:child_process";
@@ -18,11 +18,11 @@ const VERSION = JSON.parse(fs.readFileSync(path.join(SRC, "package.json"), "utf8
 const fail = (m) => { console.error(`✗ ${m}`); process.exit(1); };
 const git = (...a) => execFileSync("git", a, { cwd: DEST, stdio: ["ignore", "pipe", "pipe"] }).toString().trim();
 
-// Fichiers du socle : remplacés à chaque init/update.
+// Fichiers de lucid : remplacés à chaque init/update.
 const OWNED = [
   "scripts/ai-sync.mjs", "scripts/board.mjs", "scripts/loop.mjs", "scripts/vision.mjs", "scripts/release.mjs",
   "scripts/hooks/", "board/schema/", ".ai/agents/", ".ai/commands/", ".ai/skills/", ".ai/templates/", ".ai/harness/",
-  ".ai/AGENTS.socle.md", ".ai/gitignore.socle", ".ai/NOTICE", "socle.just", "lefthook-socle.yml", ".github/workflows/socle.yml",
+  ".ai/AGENTS.lucid.md", ".ai/gitignore.lucid", ".ai/NOTICE", "lucid.just", "lefthook-lucid.yml", ".github/workflows/lucid.yml",
   "docs/components/_template/", "docs/vision.template.md", "specs/_template/",
 ];
 // Fichiers de départ : créés s'ils manquent, ensuite ils appartiennent au projet.
@@ -31,13 +31,13 @@ const SEED = [
   "docs/README.md", "docs/architecture.md", "docs/adr/.gitkeep", "docs/vision-history/.gitkeep", "docs/lessons/", ".devcontainer/",
 ];
 
-if (!["init", "update"].includes(cmd)) fail("usage : npx github:clemuscle/socle-v2 init | update [--dry-run]");
-if (path.resolve(SRC) === path.resolve(DEST)) fail("lance-moi depuis ton projet, pas depuis le socle");
+if (!["init", "update"].includes(cmd)) fail("usage : npx github:clemuscle/lucid init | update [--dry-run]");
+if (path.resolve(SRC) === path.resolve(DEST)) fail("lance-moi depuis ton projet, pas depuis lucid");
 try { git("rev-parse", "--git-dir"); } catch { fail("pas un dépôt git : lance `git init` d'abord"); }
 if (!DRY && git("status", "--porcelain")) fail("arbre git non propre : commit ou stash tes changements d'abord");
-const installed = fs.existsSync(path.join(DEST, ".socle-version"));
-if (cmd === "init" && installed) fail("socle déjà installé : utilise `update`");
-if (cmd === "update" && !installed) fail("socle absent : utilise `init`");
+const installed = fs.existsSync(path.join(DEST, ".lucid-version"));
+if (cmd === "init" && installed) fail("lucid déjà installé : utilise `update`");
+if (cmd === "update" && !installed) fail("lucid absent : utilise `init`");
 
 const files = (rel) => {
   const abs = path.join(SRC, rel);
@@ -68,7 +68,7 @@ function anchor(rel, test, insert) {
 }
 
 // Branches : dev (env de dev) puis une branche de travail, pour relire avant merge.
-const branch = cmd === "init" ? "chore/integrate-socle-v2" : `chore/update-socle-${VERSION}`;
+const branch = cmd === "init" ? "chore/integrate-lucid" : `chore/update-lucid-${VERSION}`;
 const start = DRY ? "" : git("branch", "--show-current");
 const has = (b) => { try { git("rev-parse", "--verify", "--quiet", b); return true; } catch { return false; } };
 if (!DRY) {
@@ -79,33 +79,33 @@ if (!DRY) {
 
 for (const rel of OWNED.flatMap(files)) copy(rel, { overwrite: true });
 for (const rel of SEED.flatMap(files)) copy(rel, { overwrite: false });
-anchor("justfile", /^import\s+['"]socle\.just['"]/m, (s) => s.replace(/^(set [^\n]*\n)*/, (m) => `${m}import 'socle.just'\n`));
-anchor("lefthook.yml", /lefthook-socle\.yml/, (s) => /^extends:\s*$/m.test(s)
-  ? s.replace(/^extends:\s*$/m, "extends:\n  - lefthook-socle.yml") : `extends:\n  - lefthook-socle.yml\n${s}`);
+anchor("justfile", /^import\s+['"]lucid\.just['"]/m, (s) => s.replace(/^(set [^\n]*\n)*/, (m) => `${m}import 'lucid.just'\n`));
+anchor("lefthook.yml", /lefthook-lucid\.yml/, (s) => /^extends:\s*$/m.test(s)
+  ? s.replace(/^extends:\s*$/m, "extends:\n  - lefthook-lucid.yml") : `extends:\n  - lefthook-lucid.yml\n${s}`);
 
 if (DRY) {
   for (const [k, v] of Object.entries(done)) if (v.length) console.log(`${k} (${v.length}) :\n  ${v.join("\n  ")}`);
   console.log("dry-run : rien n'a été écrit (ai-sync non lancé)");
   process.exit(0);
 }
-fs.writeFileSync(path.join(DEST, ".socle-version"), VERSION + "\n");
+fs.writeFileSync(path.join(DEST, ".lucid-version"), VERSION + "\n");
 const node = (...a) => execFileSync("node", a, { cwd: DEST, stdio: ["ignore", "pipe", "inherit"] });
 node("scripts/ai-sync.mjs"); node("scripts/board.mjs", "graph");
 
-// Avertissements utiles : recettes du projet manquantes ou en doublon avec le socle.
+// Avertissements utiles : recettes du projet manquantes ou en doublon avec lucid.
 const recipes = (f) => fs.existsSync(f) ? [...fs.readFileSync(f, "utf8").matchAll(/^([a-z][\w-]*)[^\n:]*:(?!=)/gm)].map((m) => m[1]) : [];
-const mine = recipes(path.join(DEST, "justfile")), socle = new Set(recipes(path.join(DEST, "socle.just")));
+const mine = recipes(path.join(DEST, "justfile")), ours = new Set(recipes(path.join(DEST, "lucid.just")));
 const warn = [
-  ...mine.filter((r) => socle.has(r)).map((r) => `recette « ${r} » définie dans justfile ET socle.just : renomme la tienne`),
+  ...mine.filter((r) => ours.has(r)).map((r) => `recette « ${r} » définie dans justfile ET lucid.just : renomme la tienne`),
   ...["fmt", "lint", "typecheck", "test"].filter((r) => !mine.includes(r)).map((r) => `recette « ${r} » absente de justfile : \`just check\` échouera`),
 ];
 
-const subject = `chore: ${cmd === "init" ? "intègre" : "met à jour"} le socle v${VERSION}`;
+const subject = `chore: ${cmd === "init" ? "intègre" : "met à jour"} lucid v${VERSION}`;
 git("add", "-A");
 if (!git("status", "--porcelain")) {
   git("switch", "-q", start);
   git("branch", "-D", branch);
-  console.log(`✓ socle v${VERSION} déjà à jour, rien à faire`);
+  console.log(`✓ lucid v${VERSION} déjà à jour, rien à faire`);
   process.exit(0);
 }
 try {
@@ -117,7 +117,7 @@ try {
 let hooks = "lefthook absent : installe-le puis `lefthook install`";
 try { execFileSync("lefthook", ["install"], { cwd: DEST, stdio: "ignore" }); hooks = "hooks git installés"; } catch {}
 
-console.log(`✓ socle v${VERSION} ${cmd === "init" ? "installé" : "mis à jour"} sur la branche ${branch} (commit fait)`);
+console.log(`✓ lucid v${VERSION} ${cmd === "init" ? "installé" : "mis à jour"} sur la branche ${branch} (commit fait)`);
 console.log(`  ${done.créés.length} créés · ${done.remplacés.length} remplacés · ${done.ancrés.length} ancrés (${done.ancrés.join(", ") || "—"}) · ${done.conservés.length} fichiers du projet conservés`);
 console.log(`  ${hooks}`);
 for (const w of warn) console.log(`  ⚠ ${w}`);

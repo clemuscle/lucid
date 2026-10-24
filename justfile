@@ -1,7 +1,7 @@
 # Point d'entrée UNIQUE pour humains, agents, hooks et CI.
-# Ce fichier appartient au PROJET. Les recettes du socle sont dans socle.just (ne pas éditer).
+# Ce fichier appartient au PROJET. Les recettes de lucid sont dans lucid.just (ne pas éditer).
 set shell := ["bash", "-euo", "pipefail", "-c"]
-import 'socle.just'
+import 'lucid.just'
 
 default:
     @just --list

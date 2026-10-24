@@ -1,6 +1,6 @@
-# socle v2 — démarrer un projet avec des agents IA, sans flou
+# lucid — démarrer un projet avec des agents IA, sans flou
 
-Un socle à installer dans n'importe quel projet, neuf ou existant. Il impose un ordre simple :
+**lucid** est un socle à installer dans n'importe quel projet, neuf ou existant. Il impose un ordre simple :
 **une vision claire d'abord, puis des US, puis du code**, avec des agents qui tournent
 sur Claude Code ou OpenCode et des garde-fous qu'aucun agent ne peut contourner.
 
@@ -12,23 +12,23 @@ sur Claude Code ou OpenCode et des garde-fous qu'aucun agent ne peut contourner.
 ## Installer dans un projet (neuf ou existant)
 ```bash
 cd mon-projet                              # un dépôt git, arbre propre (projet neuf : git init + 1 commit)
-npx github:clemuscle/socle-v2 init         # --dry-run pour voir sans écrire
-npx github:clemuscle/socle-v2 update       # plus tard : nouvelle version du socle
+npx github:clemuscle/lucid init         # --dry-run pour voir sans écrire
+npx github:clemuscle/lucid update       # plus tard : nouvelle version de lucid
 ```
-L'installeur crée `dev` si besoin, travaille sur une branche `chore/integrate-socle-v2` (commit fait, à merger vers `dev`)
+L'installeur crée `dev` si besoin, travaille sur une branche `chore/integrate-lucid` (commit fait, à merger vers `dev`)
 et **n'écrase aucun fichier du projet** :
 
-| Si ton projet a déjà… | Le socle |
+| Si ton projet a déjà… | lucid |
 |---|---|
-| `justfile` | ajoute `import 'socle.just'` ; ses recettes sont dans `socle.just` |
-| `lefthook.yml` | ajoute `extends: [lefthook-socle.yml]` |
-| `AGENTS.md`, `.gitignore` | ajoute un bloc balisé `socle:start/end` en tête, ton contenu reste |
+| `justfile` | ajoute `import 'lucid.just'` ; ses recettes sont dans `lucid.just` |
+| `lefthook.yml` | ajoute `extends: [lefthook-lucid.yml]` |
+| `AGENTS.md`, `.gitignore` | ajoute un bloc balisé `lucid:start/end` en tête, ton contenu reste |
 | `CLAUDE.md` | ajoute `@AGENTS.md` en tête |
 | `.claude/settings.json`, `opencode.json` | fusionne ses garde-fous (permissions, hooks), tes réglages restent |
-| CI, `docs/`, `scripts/` | ne touche à rien : CI dans `socle.yml`, docs créées seulement si absentes |
+| CI, `docs/`, `scripts/` | ne touche à rien : CI dans `lucid.yml`, docs créées seulement si absentes |
 
-`update` remplace uniquement les fichiers du socle (`scripts/` du socle, `.ai/agents|commands|skills|templates|harness`,
-`board/schema/`, templates de docs) et le contenu des blocs balisés. Pour adapter un skill du socle, copie-le sous un autre nom.
+`update` remplace uniquement les fichiers de lucid (`scripts/` de lucid, `.ai/agents|commands|skills|templates|harness`,
+`board/schema/`, templates de docs) et le contenu des blocs balisés. Pour adapter un skill de lucid, copie-le sous un autre nom.
 
 Ensuite :
 ```bash
@@ -40,7 +40,7 @@ claude                      # ou : opencode
    une hypothèse à tester ou une question non bloquante avec échéance. Le résultat : `docs/vision.md`.
 2. **`just vision-approve`** dans ton terminal. Toi seul peux le faire : un agent est bloqué par le hook,
    et le script exige un terminal interactif. Si la vision change ensuite, elle doit être réapprouvée.
-3. Configure `fmt / lint / typecheck / test` dans le `justfile` (fail-closed tant que ce n'est pas fait : la CI `socle.yml` reste rouge d'ici là).
+3. Configure `fmt / lint / typecheck / test` dans le `justfile` (fail-closed tant que ce n'est pas fait : la CI `lucid.yml` reste rouge d'ici là).
 4. **`/spec`** : po et architect transforment le périmètre MVP en specs et US, sans redemander ce que la vision tranche déjà.
 
 ## Ensuite, au quotidien
@@ -80,8 +80,8 @@ claude                      # ou : opencode
 - **Leçons** : chaque erreur d'agent → `docs/lessons/<catégorie>/`, lue avant les tâches suivantes.
 
 ## Personnaliser
-Dans un projet : `AGENTS.md` (sous le bloc du socle), `justfile`, `.ai/config.json`, `.ai/graph.json`, et de NOUVEAUX
-agents/commandes/skills dans `.ai/` (un nom différent de ceux du socle, sinon `update` les remplace), puis `just ai-sync`.
+Dans un projet : `AGENTS.md` (sous le bloc de lucid), `justfile`, `.ai/config.json`, `.ai/graph.json`, et de NOUVEAUX
+agents/commandes/skills dans `.ai/` (un nom différent de ceux de lucid, sinon `update` les remplace), puis `just ai-sync`.
 `.claude/`, `.opencode/`, `opencode.json`, `docs/graph.md` et les templates de PR/MR (`.github/`, `.gitlab/`) sont générés.
 
 ## Crédits

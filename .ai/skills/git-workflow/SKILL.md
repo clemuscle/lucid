@@ -2,7 +2,7 @@
 name: git-workflow
 description: Branches, commits, versions, PR/MR. Utiliser avant toute création de branche, commit, PR/MR ou release.
 ---
-# Git flow du socle
+# Git flow de lucid
 
 ```
 feat|fix|docs|refactor|test|chore|ci|perf|build/<US-n>-<slug> ──PR──► dev ──PR release/x.y.z──► main + tag vX.Y.Z

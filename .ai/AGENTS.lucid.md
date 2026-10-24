@@ -1,4 +1,4 @@
-# AGENTS.md — règles du socle (lues par tous les agents)
+# AGENTS.md — règles de lucid (lues par tous les agents)
 
 ## Projet
 La vision du projet est `docs/vision.md`. Elle fait foi : intention, périmètre, non-objectifs, contraintes,

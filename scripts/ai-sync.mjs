@@ -89,18 +89,18 @@ for (const s of list(path.join(SRC, "skills"))) {
 }
 
 // Config propre à chaque harness (permissions, hooks), FUSIONNÉE dans celle du projet :
-// les garde-fous du socle sont toujours présents, les réglages du projet sont conservés.
-// Tableaux : union sans doublon. Objets : fusion récursive. Valeur simple : celle du socle.
+// les garde-fous de lucid sont toujours présents, les réglages du projet sont conservés.
+// Tableaux : union sans doublon. Objets : fusion récursive. Valeur simple : celle de lucid.
 const merge = (a, b) => Array.isArray(a) && Array.isArray(b)
   ? [...a, ...b.filter((x) => !a.some((y) => JSON.stringify(y) === JSON.stringify(x)))]
   : a && b && typeof a === "object" && typeof b === "object" && !Array.isArray(a) && !Array.isArray(b)
     ? Object.fromEntries([...new Set([...Object.keys(a), ...Object.keys(b)])].map((k) => [k, k in a && k in b ? merge(a[k], b[k]) : k in b ? b[k] : a[k]]))
     : b;
 function harnessConfig(file, src) {
-  const socle = fs.readFileSync(path.join(SRC, "harness", src), "utf8");
-  if (!fs.existsSync(file)) return write(file, socle, { owned: true });
+  const ours = fs.readFileSync(path.join(SRC, "harness", src), "utf8");
+  if (!fs.existsSync(file)) return write(file, ours, { owned: true });
   const cur = fs.readFileSync(file, "utf8");
-  const next = JSON.stringify(merge(JSON.parse(cur), JSON.parse(socle)), null, 2) + "\n";
+  const next = JSON.stringify(merge(JSON.parse(cur), JSON.parse(ours)), null, 2) + "\n";
   write(file, JSON.stringify(JSON.parse(cur)) === JSON.stringify(JSON.parse(next)) ? cur : next, { owned: true });
 }
 if (cfg.harnesses.includes("claude")) harnessConfig(path.join(ROOT, ".claude/settings.json"), "claude.settings.json");
@@ -114,7 +114,7 @@ if (fs.existsSync(PR)) {
   if ((cfg.forges || []).includes("gitlab")) write(path.join(ROOT, ".gitlab/merge_request_templates/Default.md"), tpl);
 }
 
-// Blocs balisés dans des fichiers du projet : seul le contenu entre les marqueurs appartient au socle.
+// Blocs balisés dans des fichiers du projet : seul le contenu entre les marqueurs appartient à lucid.
 // En tête de fichier : les règles et exceptions du projet, placées après, gardent le dernier mot.
 function block(file, body, open, close, seed = "") {
   const cur = fs.existsSync(file) ? fs.readFileSync(file, "utf8") : null;
@@ -125,11 +125,11 @@ function block(file, body, open, close, seed = "") {
     : `${blk}\n\n${cur}`;
   write(file, next, { owned: true });
 }
-block(path.join(ROOT, "AGENTS.md"), fs.readFileSync(path.join(SRC, "AGENTS.socle.md"), "utf8"),
-  "<!-- socle:start — généré depuis .ai/AGENTS.socle.md, ne pas éditer entre ces marqueurs -->", "<!-- socle:end -->",
+block(path.join(ROOT, "AGENTS.md"), fs.readFileSync(path.join(SRC, "AGENTS.lucid.md"), "utf8"),
+  "<!-- lucid:start — généré depuis .ai/AGENTS.lucid.md, ne pas éditer entre ces marqueurs -->", "<!-- lucid:end -->",
   "\n## Spécifique au projet\n<!-- Langage, structure des dossiers, conventions propres au projet. -->\n");
-block(path.join(ROOT, ".gitignore"), fs.readFileSync(path.join(SRC, "gitignore.socle"), "utf8"),
-  "# socle:start (généré, ne pas éditer)", "# socle:end");
+block(path.join(ROOT, ".gitignore"), fs.readFileSync(path.join(SRC, "gitignore.lucid"), "utf8"),
+  "# lucid:start (généré, ne pas éditer)", "# lucid:end");
 
 // Pont CLAUDE.md -> AGENTS.md (un CLAUDE.md du projet est conservé, la ligne est ajoutée en tête)
 if (cfg.harnesses.includes("claude")) {

@@ -1,3 +1,3 @@
-# Hooks du PROJET. Les garde-fous du socle sont dans lefthook-socle.yml (ne pas éditer).
+# Hooks du PROJET. Les garde-fous de lucid sont dans lefthook-lucid.yml (ne pas éditer).
 extends:
-  - lefthook-socle.yml
+  - lefthook-lucid.yml

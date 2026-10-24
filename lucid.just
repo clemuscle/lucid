@@ -1,4 +1,4 @@
-# Recettes du SOCLE (mises à jour par `npx github:clemuscle/socle-v2 update`). Ne pas éditer :
+# Recettes de LUCID (mises à jour par `npx github:clemuscle/lucid update`). Ne pas éditer :
 # les recettes du projet (fmt, lint, typecheck, test) sont dans `justfile`, qui importe ce fichier.
 # --- Sécurité ---
 scan:

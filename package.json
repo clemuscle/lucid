@@ -1,9 +1,9 @@
 {
-  "name": "socle-v2",
-  "version": "2.0.0",
-  "description": "Socle de projet piloté par agents IA : npx github:clemuscle/socle-v2 init | update",
+  "name": "lucid",
+  "version": "1.0.0",
+  "description": "lucid — socle de projet piloté par agents IA : npx github:clemuscle/lucid init | update",
   "private": true,
   "type": "module",
-  "bin": { "socle": "scripts/install.mjs" },
+  "bin": { "lucid": "scripts/install.mjs" },
   "engines": { "node": ">=20" }
 }
